@@ -1,19 +1,19 @@
 import torch
 from torch import nn
-from .utils import load_state_dict_from_url
+from torch.hub import load_state_dict_from_url
 from typing import Any
 
-__all__ = ['DeepVirFinder', 'metamosvirfinder']
+__all__ = ['DeepVirFinder', 'deepvirfinder']
 
 model_urls = {
-    'metamosvirfinder': ''
+    'deepvirfinder': 'https://mosquitopretrainedmodels.s3-sa-east-1.amazonaws.com/small_random_w_dvf_0.001_truncated_500.pth'
     }
 
 class DeepVirFinder(nn.Module):
   def __init__(self, M = 10, K = 8, N = 100, p=0.1):
 
     super().__init__()
-    
+
     self.K = K
     self.M = M
 
@@ -33,21 +33,21 @@ class DeepVirFinder(nn.Module):
     self.sigmoid = nn.Sigmoid() 
         
   
-  def forward(self, x) -> torch.Tensor:viraminermosvirfinder
-    
+  def forward(self, x) -> torch.Tensor:
+
     x = self.conv1d_1(x)
     x = self.relu1(x)
 
     x = self.maxpool(x)
 
     x = self.dropout(x)
-    
+
     x = self.dense_1(x)
     x = self.dropout(x)
     x = self.relu2(x)
     x = self.dense_2(x)
     x = self.sigmoid(x)
-    
+
     return x
 
 class GlobalMaxPooling1D(nn.Module):
@@ -63,12 +63,12 @@ class GlobalMaxPooling1D(nn.Module):
 
 
 
-def metamosvirfinder(pretrained: bool = False, progress: bool = False, **kwargs: Any) -> DeepVirFinder:
+def deepvirfinder(pretrained: bool = False, progress: bool = False, **kwargs: Any) -> DeepVirFinder:
     model = DeepVirFinder(**kwargs)
 
 
     if pretrained:
-        state_dict = load_state_dict_from_url(model_urls['metamosvirfinder'],
+        state_dict = load_state_dict_from_url(model_urls['deepvirfinder'],
                                               progress=progress)
         model.load_state_dict(state_dict)
 

@@ -51,10 +51,14 @@ class ToTensor(object):
 
 
 class ToOneHot(object):
-  def __toOneHot(self, alphabet, seq):
+  def __init__(self, alphabet: List[str]):
+    super().__init__()
+    self.alphabet=alphabet
+
+  def __toOneHot(self, seq):
     import numpy as np
     oneHot = [] 
-    oneHot_map = dict(zip(alphabet, np.eye(len(alphabet))))
+    oneHot_map = dict(zip(self.alphabet, np.eye(len(self.alphabet))))
     for nt in seq:
         try:
             oneHot.append(oneHot_map[nt])
@@ -66,11 +70,11 @@ class ToOneHot(object):
 
     return np.array(oneHot, dtype=np.float32)
 
-  def __call__(self, alphabet: List[str], seq: Union[Any, Tuple[Any, Any]]) -> Union[Any, Tuple[Any, Any]]:
+  def __call__(self, seq: Union[Any, Tuple[Any, Any]]) -> Union[Any, Tuple[Any, Any]]:
     if isinstance(seq, tuple):
-      return tuple(map(lambda x: self.__toOneHot(alphabet,x), seq))
+      return tuple(map(self.__toOneHot, seq))
     else:
-      return self.__toOneHot(alphabet, seq)
+      return self.__toOneHot(seq)
 
 
 class Chunking(object):

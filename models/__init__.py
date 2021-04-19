@@ -1,2 +1,2 @@
-from .metamosvirfinder import *
-from .viraminermosvirfinder import *
+from .deepvirfinder import *
+from .viraminer import *

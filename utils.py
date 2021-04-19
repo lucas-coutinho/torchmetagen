@@ -3,12 +3,21 @@ import random
 import copy
 from sklearn import metrics as mtr
 import matplotlib.pyplot as plt
+
+import torch
 from torch.utils.data import DataLoader 
 from torch import nn
+
 from typing import Any, Callable, cast, Dict, List, Optional, Tuple, Union
 
 
-def train_model(model: nn.Module, criterion: nn.Module, optimizer: nn.Module, scheduler: nn.Module, num_epochs: int = 25) -> Tuple[List, List]:
+
+def train_model(model: nn.Module, 
+                criterion: nn.Module, 
+                optimizer: nn.Module,
+                scheduler: nn.Module,
+                dataloaders: Dict[str,DataLoader],
+                num_epochs: int = 25) -> Tuple[List, List]:
   since = time.time()
 
   best_model_wts = copy.deepcopy(model.state_dict())

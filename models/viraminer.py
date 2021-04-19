@@ -1,12 +1,12 @@
 import torch
 from torch import nn
-from .utils import load_state_dict_from_url
+from torch.hub import load_state_dict_from_url
 from typing import Any
 
-__all__ = ['ViraMINER', 'viraminermosvirfinder']
+__all__ = ['ViraMINER', 'viraminer']
 
 model_urls = {
-    'viraminermosvirfinder': 's3://mosquitopretrainedmodels/small_random_w_viraminer_0.001_padding_1000.pth'
+    'viraminer': 'https://mosquitopretrainedmodels.s3-sa-east-1.amazonaws.com/small_random_w_viraminer_0.001_padding_1000.pth'
     }
 
 class ViraMINER(nn.Module):
@@ -74,13 +74,12 @@ class GlobalAvgPooling1D(nn.Module):
       return torch.mean(input, dim=self.step_axis, keepdim=True)
 
 
-def viraminermosvirfinder(pretrained: bool = False, progress: bool = False, **kwargs:Any) -> ViraMINER:
+def viraminer(pretrained: bool = False, progress: bool = False, **kwargs:Any) -> ViraMINER:
     model = ViraMINER(**kwargs)
 
 
     if pretrained:
-        state_dict = load_state_dict_from_url(model_urls['viraminermosvirfinder'],
-                                              '/tmp/',
+        state_dict = load_state_dict_from_url(model_urls['viraminer'],
                                               progress=progress)
         model.load_state_dict(state_dict)
 
