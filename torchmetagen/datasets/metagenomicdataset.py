@@ -5,6 +5,23 @@ from typing import Any, Callable, cast, Dict, List, Optional, Tuple, Union, Iter
 
 __all__=['MetagenomicSequenceData']
 
+"""
+.. note::
+    the structure of the dataset is designed as:
+    |
+    --train
+    |      |
+    |       --viral.fasta
+    |       --nonvral.fasta
+    |       ...
+    --validation
+    |      |
+    |       --viral.fasta
+    |       --nonvral.fasta
+    |       ...      
+           
+
+"""
 class MetagenomicSequenceData(Dataset):
     def __init__(self,
                 data: DataFrame,

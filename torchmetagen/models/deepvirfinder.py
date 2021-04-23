@@ -11,7 +11,15 @@ model_urls = {
 
 class DeepVirFinder(nn.Module):
   def __init__(self, M = 10, K = 8, N = 100, p=0.1):
+    """
+    DeepVirFinder constructor
 
+    Args:
+      M : number of feature maps in the convolutional layer
+      K : dimensionality of the kernel 
+      N : number of neurons in the Linear layer
+      p : dropout's probability
+    """
     super().__init__()
 
     self.K = K
@@ -52,9 +60,10 @@ class DeepVirFinder(nn.Module):
 
 class GlobalMaxPooling1D(nn.Module):
   def __init__(self, data_format='channels_last'):
-      super(GlobalMaxPooling1D, self).__init__()
-      self.data_format = data_format
-      self.step_axis = 1 if self.data_format == 'channels_last' else 2
+    
+    super(GlobalMaxPooling1D, self).__init__()
+    self.data_format = data_format
+    self.step_axis = 1 if self.data_format == 'channels_last' else 2
 
   def forward(self, input) -> torch.Tensor:
 
@@ -64,6 +73,14 @@ class GlobalMaxPooling1D(nn.Module):
 
 
 def deepvirfinder(pretrained: bool = False, progress: bool = False, **kwargs: Any) -> DeepVirFinder:
+    r""" Jie Ren's et al DeepVirFinder architecture from the
+    `"Identifying viruses from metagenomic data by deep learning" <https://arxiv.org/abs/1806.07810>` paper.
+
+    Args:
+        pretrained (bool): If True, returns a model pre-trained on metavirome dataset
+        progress (bool): If True, displays a progress bar of the download to stderr
+
+    """
     model = DeepVirFinder(**kwargs)
 
 

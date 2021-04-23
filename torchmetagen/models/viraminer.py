@@ -11,7 +11,15 @@ model_urls = {
 
 class ViraMINER(nn.Module):
   def __init__(self, M = 10, K = 8, N = 100, p=0.3):
+    """
+    ViraMINER constructor
 
+    Args:
+      M : number of feature maps in the convolutional layer
+      K : dimensionality of the kernel 
+      N : number of neurons in the Linear layer
+      p : dropout's probability
+    """
     super().__init__()
     
     self.K = K
@@ -75,6 +83,14 @@ class GlobalAvgPooling1D(nn.Module):
 
 
 def viraminer(pretrained: bool = False, progress: bool = False, **kwargs:Any) -> ViraMINER:
+    r""" ViramMiner architecture from the
+    `"ViraMiner: Deep Learning on Raw DNA Sequences for Identifying Viral Genomes in Human Samples" <https://www.biorxiv.org/content/10.1101/602656v2>` paper.
+
+    Args:
+        pretrained (bool): If True, returns a model pre-trained on metavirome dataset
+        progress (bool): If True, displays a progress bar of the download to stderr
+
+    """
     model = ViraMINER(**kwargs)
 
 

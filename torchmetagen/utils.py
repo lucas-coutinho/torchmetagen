@@ -4,6 +4,7 @@ import copy
 from sklearn import metrics as mtr
 import matplotlib.pyplot as plt
 
+
 import torch
 from torch.utils.data import DataLoader 
 from torch import nn
@@ -11,13 +12,14 @@ from torch import nn
 from typing import Any, Callable, cast, Dict, List, Optional, Tuple, Union
 
 
-
-def train_model(model: nn.Module, 
-                criterion: nn.Module, 
-                optimizer: nn.Module,
-                scheduler: nn.Module,
-                dataloaders: Dict[str,DataLoader],
-                num_epochs: int = 25) -> Tuple[List, List]:
+def train_model(model: nn.Module,
+                criterion: nn.Module,
+                optimizer: nn.Module, 
+                scheduler: nn.Module, 
+                dataloaders: Dict[str, DataLoader], 
+                device: str, 
+                dataset_sizes: Dict[str, int],
+                num_epochs: int =25):
   since = time.time()
 
   best_model_wts = copy.deepcopy(model.state_dict())
@@ -40,10 +42,10 @@ def train_model(model: nn.Module,
 
           # Iterate over data.
           for inputs, labels in dataloaders[phase]:
-              #forwards, backwards = inputs
-              forwards = inputs
+              forwards, backwards = inputs
+              #forwards = inputs
               forwards  = forwards.to(device)
-              #backwards = backwards.to(device)
+              backwards = backwards.to(device)
 
               labels    = labels.to(device)
 
@@ -54,10 +56,10 @@ def train_model(model: nn.Module,
               # track history if only in train
               with torch.set_grad_enabled(phase == 'train'):
                   outputs_fw = model(forwards)
-                  #outputs_bk = model(backwards)
+                  outputs_bk = model(backwards)
                   # print(outputs_fw.shape, outputs_bk.shape, labels.unsqueeze(1).shape)
-                  #outmean = (outputs_fw + outputs_bk)/2.
-                  outmean = outputs_fw
+                  outmean = (outputs_fw + outputs_bk)/2.
+                  #outmean = outputs_fw
                   # _, preds = torch.max(outmean, 1)
                   preds = torch.round(outmean)
                   loss = criterion(outmean, labels.unsqueeze(1).to(torch.float32))
@@ -100,56 +102,60 @@ def train_model(model: nn.Module,
   model.load_state_dict(best_model_wts)
   return loss_per_epoch, loss_per_batch
 
-#import pandas_ml
 
-def evaluate(model: nn.Module, data_loader: DataLoader, report: bool = True) -> Union[Tuple[List,List], Dict[str, float]]:
+
+def evaluate(model: nn.Module, 
+             data_loader: DataLoader, 
+             device: str, 
+             report: bool =True):
   acc = 0.0
+  
 
   model.eval() 
 
-  y_hat = []
-  y_true = []
+  y_hat = None
+  y_true = None
   score = []
   with torch.no_grad():
     for inputs, labels in data_loader:
-        #forwards, backwards = inputs
-        forwards = inputs
-        
+        forwards, backwards = inputs
+    
         labels = labels.to(device)
         forwards  = forwards.to(device)
-       # backwards = backwards.to(device)
+        backwards = backwards.to(device)
 
 
         outputs_fw = model(forwards)
-       # outputs_bw = model(backwards)
-        # print(outputs_fw)
-        # print(outputs_bw)
-        mean = outputs_fw
-        #mean = (outputs_fw + outputs_bw)/2.
+        outputs_bw = model(backwards)
+
+        mean = (outputs_fw + outputs_bw)/2.
 
         score.append(mean.squeeze(1))
-      # _, preds = torch.max((outputs_fw + outputs_bw)/2 , 1)
+
         preds = torch.round(mean)
-        y_hat.append(preds.squeeze(1))
-        y_true.append(labels.squeeze(0))
+        y_hat = torch.cat((y_hat, preds.squeeze(1))) if y_hat is not None else preds.squeeze(1)
+
+        y_true = torch.cat((y_true, labels)) if y_true is not None else labels
+
         acc += torch.sum(preds == labels.unsqueeze(1).data)
-      
-  
 
   
   print('Acc test_set: {:.4f}'.format(acc.double()/len(data_loader.dataset)))
-  Y_true = [label for joint in y_true for label in joint.cpu().numpy()] 
-  #print(Y_true)
-  Y_hat =  [label for joint in (y_hat if report else score) for label in joint.cpu().numpy()]
-  # print(Y_hat[1], Y_true[1])
+  
+  Y_true = [true for true in y_true.cpu().numpy() ] #[label for joint in y_true for label in joint.cpu().numpy()] 
+
+  Y_hat =  [hat for hat in y_hat.cpu().numpy()] #[label for joint in (y_hat if report else score) for label in joint.cpu().numpy()]
+
   if report:
     return  mtr.classification_report(Y_true, Y_hat, output_dict=True)
   else:
     return Y_hat, Y_true
 
 
-def genDataLoader(dataset_metagenomic: Dict[str, torch.utils.data.Dataset], batch_size: Dict[str, int]) -> DataLoader:
-  class_count = [dataset_metagenomic['train'].lens['nonviral'], dataset_metagenomic['train'].lens['viral']]
+
+def genDataLoader(dataset_metagenomic: Dict[str, torch.utils.data.Dataset], 
+                  batch_size: Dict[str, int]) -> DataLoader:
+  class_count = [sum([x == 0 for a, x in dataset_metagenomic['train']]), sum([x==1 for a, x in dataset_metagenomic['train']])]
 
   weights = [len(dataset_metagenomic['train'])/class_count[int(label)] for _, label in dataset_metagenomic['train']]
   weights = torch.Tensor(weights)
