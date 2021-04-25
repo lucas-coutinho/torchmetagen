@@ -1,0 +1,4 @@
+biopython==1.78
+torch==1.8.1
+logging=0.5.1.2
+torchvision==0.9.1
