@@ -5,3 +5,5 @@
 Dataset_v1_2
 DeepVirFinder
 *.pth
+dist
+*egg-info
