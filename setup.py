@@ -7,7 +7,7 @@ long_description = (here / 'README.md').read_text(encoding='utf-8')
 
 setup(
     name='torchmetagen',
-    version='0.1.7',
+    version='0.1.8',
     license='MIT',
 
     description='Torchmetagen is a python package for metagenomic sequence data processing and inference.',
@@ -23,7 +23,7 @@ setup(
         'Programming Language :: Python :: 3',
     ],
 
-    packages=['torchmetagen'],
+    packages=find_packages(),
     install_requires=[
                 'numpy',
                 'torch',
