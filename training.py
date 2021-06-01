@@ -6,10 +6,10 @@ import pandas as pd
 import torch
 from torchvision import transforms as tf
 
-from datasets import metagenomicdataset as meta
-from datasets.utils import FastaHandler, DatasetSplit, InflateDataset
-from models import DeepVirFinder, deepvirfinder
-from transforms import *
+from torchmetagen.datasets import metagenomicdataset as meta
+from torchmetagen.datasets.utils import FastaHandler, DatasetSplit, InflateDataset
+from torchmetagen.models import DeepVirFinder, deepvirfinder
+from torchmetagen.transforms import *
 from utils import *
 
 
