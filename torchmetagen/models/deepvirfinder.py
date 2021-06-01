@@ -1,6 +1,6 @@
 import torch
 from torch import nn
-from .utils import *
+from torch.hub import load_state_dict_from_url
 from typing import Any
 
 __all__ = ['DeepVirFinder', 'deepvirfinder']
