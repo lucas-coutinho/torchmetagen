@@ -1,6 +1,7 @@
 import torch
 from torch import nn
 from torch.hub import load_state_dict_from_url
+import pytorch_lightning as pl
 from typing import Any
 
 __all__ = ['DeepVirFinder', 'deepvirfinder']
@@ -9,7 +10,7 @@ model_urls = {
     'deepvirfinder': 'https://mosquitopretrainedmodels.s3-sa-east-1.amazonaws.com/small_random_w_dvf_0.001_truncated_500.pth'
     }
 
-class DeepVirFinder(nn.Module):
+class DeepVirFinder(pl.LightningModule):
   def __init__(self, M = 10, K = 8, N = 100, p=0.1):
     """
     DeepVirFinder constructor
@@ -57,6 +58,20 @@ class DeepVirFinder(nn.Module):
     x = self.sigmoid(x)
 
     return x
+  
+  def training_step(self, *args, **kwargs):
+      return super().training_step(*args, **kwargs)
+
+  def configure_optimizers(self):
+      return super().configure_optimizers()
+
+  def validation_step(self, *args, **kwargs):
+      return super().validation_step(*args, **kwargs)
+  
+  def test_step(self, *args, **kwargs):
+      return super().test_step(*args, **kwargs)
+  
+
 
 class GlobalMaxPooling1D(nn.Module):
   def __init__(self, data_format='channels_last'):
