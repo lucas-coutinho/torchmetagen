@@ -1,6 +1,8 @@
 import numpy as np
+from itertools import product
 from typing import Any, Callable, cast, Dict, List, Optional, Tuple, Union, Iterable
 import torch 
+import pandas as pd
 
 __all__=['ToKmer', 'ToW2V', 'ToTensor', 'ToOneHot', 'Chunking', 'ReverseComplement']
 
@@ -25,12 +27,14 @@ class ToKmer(KmerBase):
   def __init__(self, k: int = 3, stride: int = 1):
     self.k=k
     self.stride=stride
-
-  def __call__(self, sample):
-    return self._k_mer_encoding(sample)
+    
+  def __call__(self, seq: Union[Any, Tuple[Any, Any]]) -> Union[Any, Tuple[Any, Any]]:
+    if isinstance(seq, tuple):
+      return tuple(map(self._k_mer_encoding, seq))
+    else:
+      return self._k_mer_encoding(seq)
 
   def _k_mer_encoding(self, contig):
-    from itertools import product
     kmer_table = np.zeros((4, 4**(self.k-1)), dtype=np.float32)
     kmer_list =[''.join(x) for x in  product('ACTG', repeat= self.k-1 )]
     for mer in self._k_mer_iter(contig, self.k, self.stride):
@@ -39,8 +43,23 @@ class ToKmer(KmerBase):
       except:
         print(mer)
 
-    return kmer_table/len(contig)
+    total = kmer_table.sum()
+    return kmer_table/total
 
+  # def _k_mer_encoding(self, contig):
+    
+  #   kmer_list =[''.join(x) for x in  product('ACTGN', repeat= self.k)]
+  #   kmer_extracted = list(self._k_mer_iter(contig, self.k, self.stride))
+    
+  #   kmer_list = pd.DataFrame(data=kmer_list, columns=['KMER'])
+  #   kmer_extracted = pd.DataFrame(kmer_extracted, columns=['KMER'])
+  #   n_kmers = kmer_extracted.shape[0]
+    
+  #   kmer_extracted = kmer_extracted.groupby('KMER').agg(Count=('KMER', 'count')).reset_index()
+  #   kmer = kmer_list.merge(kmer_extracted, on=['KMER'], how='left').fillna(0)
+    
+  #   return kmer['Count'].values/n_kmers
+    
   def __repr__(self):
     return self.__class__.__name__ + '()'
 
