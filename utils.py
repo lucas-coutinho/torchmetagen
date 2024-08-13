@@ -76,8 +76,8 @@ def train_model(model: nn.Module,
 
               loss_per_batch[phase].append(loss.item() * forwards.size(0))
               running_corrects += torch.sum(preds == labels.unsqueeze(1).data)
-          # if phase == 'train':
-          #     scheduler.step()
+          if phase == 'train':
+              scheduler.step()
 
           epoch_loss = running_loss / dataset_sizes[phase]
   
@@ -89,7 +89,7 @@ def train_model(model: nn.Module,
           # deep copy the model
           if phase == 'val' and epoch_acc > best_acc:
               best_acc = epoch_acc
-              best_model_wts = copy.deepcopy(model.state_dict())
+            #   best_model_wts = copy.deepcopy(model.state_dict())
 
       print()
 
@@ -99,7 +99,7 @@ def train_model(model: nn.Module,
   print('Best val Acc: {:4f}'.format(best_acc))
 
   # load best model weights
-  model.load_state_dict(best_model_wts)
+#   model.load_state_dict(best_model_wts)
   return loss_per_epoch, loss_per_batch
 
 
